@@ -38,6 +38,9 @@
     <Compile Include="Authentication\Authentication.cs" />
     <Compile Include="Cache\BaseDiscoveryCache.cs" />
     <Compile Include="Cache\ICacheable.cs" />
+    <Compile Include="Claims\ClaimsDictionary.cs" />
+    <Compile Include="Claims\ClaimsParameter.cs" />
+    <Compile Include="Claims\ClaimsValue.cs" />
     <Compile Include="Constants\LinkRels.cs" />
     <Compile Include="Constants\Scope.cs" />
     <Compile Include="Discovery\OperatorUrls.cs" />
@@ -45,7 +48,14 @@
     <Compile Include="Exceptions\MobileConnectCacheExpiryLimitException.cs" />
     <Compile Include="Exceptions\MobileConnectInvalidArgumentException.cs" />
     <Compile Include="Exceptions\MobileConnectProviderMetadataUnavailableException.cs" />
+    <Compile Include="Identity\AddressData.cs" />
+    <Compile Include="Identity\IdentityService.cs" />
+    <Compile Include="Identity\IIdentityService.cs" />
+    <Compile Include="Identity\UserInfoData.cs" />
+    <Compile Include="Identity\UserInfoResponse.cs" />
+    <Compile Include="Json\Converters\IsoDateConverter.cs" />
     <Compile Include="Json\Converters\ObjectArrayToDictionaryConverter.cs" />
+    <Compile Include="Json\Converters\UnixTimestampConverter.cs" />
     <Compile Include="MobileConnectConstants.cs" />
     <Compile Include="MobileConnectInterfaceHelper.cs" />
     <Compile Include="Cache\ConcurrentDiscoveryCache.cs" />
@@ -85,8 +95,10 @@
     <Compile Include="Utils\BasicKeyValuePair.cs" />
     <Compile Include="Utils\MobileConnectVersions.cs" />
     <Compile Include="Utils\RequiredCookies.cs" />
+    <Compile Include="Utils\RestAuthentication.cs" />
     <Compile Include="Utils\RestClient.cs" />
     <Compile Include="Utils\RestResponse.cs" />
+    <Compile Include="Utils\Scope.cs" />
     <Compile Include="Utils\Validation.cs" />
     <Compile Include="Web\MobileConnectWebResponse.cs" />
     <Compile Include="Web\ResponseConverter.cs" />
