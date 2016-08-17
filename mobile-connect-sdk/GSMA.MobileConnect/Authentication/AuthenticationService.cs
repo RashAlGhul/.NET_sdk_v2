@@ -8,6 +8,7 @@ using GSMA.MobileConnect.Exceptions;
 using System.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace GSMA.MobileConnect.Authentication
 {
@@ -61,6 +62,40 @@ namespace GSMA.MobileConnect.Authentication
             build.AddQueryParams(GetAuthenticationQueryParams(options, shouldUseAuthorize, version));
 
             return new StartAuthenticationResponse() { Url = build.Uri.AbsoluteUri };
+        }
+
+        /// <inheritdoc/>
+        public async Task<RequestTokenResponse> RequestHeadlessAuthentication(string clientId, string clientSecret, string authorizeUrl, string tokenUrl, string redirectUrl, 
+            string state, string nonce, string encryptedMSISDN, SupportedVersions versions, AuthenticationOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            options = options ?? new AuthenticationOptions();
+            options.Prompt = "mobile";
+
+            string authUrl = StartAuthentication(clientId, authorizeUrl, redirectUrl, state, nonce, encryptedMSISDN, versions, options).Url;
+            Uri finalRedirect = null;
+
+            try
+            {
+                finalRedirect = await _client.GetFinalRedirect(authUrl, redirectUrl, cancellationToken);
+            }
+            catch (Exception e) when (e is System.Net.WebException || e is TaskCanceledException)
+            {
+                return new RequestTokenResponse(new ErrorResponse { Error = "auth_cancelled", ErrorDescription = "Headless authentication was cancelled or a timeout occurred" });
+            }
+            catch (HttpRequestException e)
+            {
+                throw new MobileConnectEndpointHttpException(e.Message, e);
+            }
+
+            var error = ErrorResponse.CreateFromUrl(finalRedirect.AbsoluteUri);
+
+            if(error != null)
+            {
+                return new RequestTokenResponse(error);
+            }
+
+            var code = HttpUtils.ExtractQueryValue(finalRedirect.AbsoluteUri, "code");
+            return await RequestTokenAsync(clientId, clientSecret, tokenUrl, redirectUrl, code);
         }
 
         private bool ShouldUseAuthorize(AuthenticationOptions options)
@@ -155,13 +190,13 @@ namespace GSMA.MobileConnect.Authentication
                 return TokenValidationResult.IncompleteTokenResponse;
             }
 
-            TokenValidationResult result = Validate.ValidateAccessToken(tokenResponse.ResponseData);
+            TokenValidationResult result = TokenValidation.ValidateAccessToken(tokenResponse.ResponseData);
             if(result != TokenValidationResult.Valid)
             {
                 return result;
             }
 
-            return Validate.ValidateIdToken(tokenResponse.ResponseData.IdToken, clientId, issuer, nonce, maxAge, keyset);
+            return TokenValidation.ValidateIdToken(tokenResponse.ResponseData.IdToken, clientId, issuer, nonce, maxAge, keyset);
         }
 
         /// <inheritdoc/>

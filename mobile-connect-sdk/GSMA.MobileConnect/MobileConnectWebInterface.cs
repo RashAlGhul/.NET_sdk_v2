@@ -4,6 +4,7 @@ using GSMA.MobileConnect.Identity;
 using GSMA.MobileConnect.Utils;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect
@@ -110,6 +111,52 @@ namespace GSMA.MobileConnect
             }
 
             return StartAuthentication(request, discoveryResponse, encryptedMSISDN, state, nonce, options);
+        }
+
+        /// <summary>
+        /// Performs headless authentication followed by request token if successful. Tokens will be validated before being returned.
+        /// This may be a long running method as it waits for the authenticating user to respond using their authenticating device.
+        /// </summary>
+        /// <param name="request">Originating web request</param>
+        /// <param name="discoveryResponse">The response returned by the discovery process</param>
+        /// <param name="encryptedMSISDN">Encrypted MSISDN/Subscriber Id returned from the Discovery process</param>
+        /// <param name="state">Unique string to be used to prevent Cross Site Forgery Request attacks during request token process (defaults to guid if not supplied, value will be returned in MobileConnectStatus object)</param>
+        /// <param name="nonce">Unique string to be used to prevent replay attacks during request token process (defaults to guid if not supplied, value will be returned in MobileConnectStatus object)</param>
+        /// <param name="options">Optional parameters</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel long running requests</param>
+        /// <returns>MobileConnectStatus object with required information for continuing the mobileconnect process</returns>
+        public async Task<MobileConnectStatus> RequestHeadlessAuthenticationAsync(HttpRequestMessage request, DiscoveryResponse discoveryResponse, string encryptedMSISDN, string state, string nonce, 
+            MobileConnectRequestOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            state = string.IsNullOrEmpty(state) ? GenerateUniqueString() : state;
+            nonce = string.IsNullOrEmpty(nonce) ? GenerateUniqueString() : nonce;
+
+            return await MobileConnectInterfaceHelper.RequestHeadlessAuthentication(_authentication, _jwks, discoveryResponse, encryptedMSISDN, state, nonce, _config, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Performs headless authentication followed by request token if successful. Tokens will be validated before being returned.
+        /// This may be a long running method as it waits for the authenticating user to respond using their authenticating device.
+        /// </summary>
+        /// <param name="request">Originating web request</param>
+        /// <param name="sdkSession">SDKSession id used to fetch the discovery response with additional parameters that are required to generate the url</param>
+        /// <param name="encryptedMSISDN">Encrypted MSISDN/Subscriber Id returned from the Discovery process</param>
+        /// <param name="state">Unique string to be used to prevent Cross Site Forgery Request attacks during request token process (defaults to guid if not supplied, value will be returned in MobileConnectStatus object)</param>
+        /// <param name="nonce">Unique string to be used to prevent replay attacks during request token process (defaults to guid if not supplied, value will be returned in MobileConnectStatus object)</param>
+        /// <param name="options">Optional parameters</param>
+        /// <param name="cancellationToken">Cancellation token that can be used to cancel long running requests</param>
+        /// <returns>MobileConnectStatus object with required information for continuing the mobileconnect process</returns>
+        public async Task<MobileConnectStatus> RequestHeadlessAuthenticationAsync(HttpRequestMessage request, string sdkSession, string encryptedMSISDN, string state, string nonce, 
+            MobileConnectRequestOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var discoveryResponse = await GetSessionFromCache(sdkSession);
+
+            if (discoveryResponse == null)
+            {
+                return GetCacheError();
+            }
+
+            return await RequestHeadlessAuthenticationAsync(request, discoveryResponse, encryptedMSISDN, state, nonce, options, cancellationToken);
         }
 
         /// <summary>

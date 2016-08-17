@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Utils
@@ -17,41 +18,49 @@ namespace GSMA.MobileConnect.Utils
         private bool _disposed;
         private readonly HttpClientHandler _handler;
         private readonly HttpClient _client;
+        private readonly HttpClientHandler _noRedirectHandler;
+        private readonly HttpClient _noRedirectClient;
 
         /// <summary>
         /// Creates a new instance of RestClient with optional timeout specified
         /// </summary>
         /// <param name="timeout">Timeout applied to all requests</param>
-        public RestClient(TimeSpan? timeout)
+        /// <param name="headlessTimeout">Timeout applied to headless requests</param>
+        public RestClient(TimeSpan? timeout, TimeSpan? headlessTimeout)
         {
             _handler = new HttpClientHandler { UseCookies = false };
             _client = new HttpClient(_handler, true);
             _client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             _client.Timeout = timeout ?? TimeSpan.FromSeconds(30);
+
+            _noRedirectHandler = new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false };
+            _noRedirectClient = new HttpClient(_noRedirectHandler, true);
+            _noRedirectClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            _noRedirectClient.Timeout = headlessTimeout ?? TimeSpan.FromMinutes(2);
         }
 
         /// <summary>
-        /// Creates a new instance of RestClient with default timeout of 30 seconds
+        /// Creates a new instance of RestClient with default timeout of 30 seconds and headless timeout of 2 minutes
         /// </summary>
-        public RestClient() : this(null) { }
+        public RestClient() : this(null, null) { }
 
         private HttpRequestMessage CreateRequest(HttpMethod method, Uri uri, RestAuthentication authentication, string sourceIp, IEnumerable<BasicKeyValuePair> cookies)
         {
             var message = new HttpRequestMessage(method, uri);
 
-            if(cookies != null && cookies.Any())
+            if (cookies != null && cookies.Any())
             {
                 var cookieKeyValues = cookies.Select(x => string.Format("{0}={1}", x.Key, x.Value));
                 var cookieString = string.Join("; ", cookieKeyValues);
                 message.Headers.Add("Cookie", cookieString);
             }
 
-            if(!string.IsNullOrEmpty(sourceIp))
+            if (!string.IsNullOrEmpty(sourceIp))
             {
                 message.Headers.Add(Headers.X_SOURCE_IP, sourceIp);
             }
 
-            if(authentication != null)
+            if (authentication != null)
             {
                 message.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(authentication.Scheme, authentication.Parameter);
             }
@@ -152,10 +161,79 @@ namespace GSMA.MobileConnect.Utils
             return restResponse;
         }
 
+        /// <summary>
+        /// Attempts to follow a redirect path until a concrete url is loaded or the expectedRedirectUrl is reached
+        /// </summary>
+        /// <param name="uri">Target uri to attempt a HTTP GET</param>
+        /// <param name="expectedRedirectUrl">Redirect url expected, if a redirect with this location is hit the absolute uri of the location will be returned</param>
+        /// <param name="cancellationToken">Cancellation token to allow cancellation of long running request if required</param>
+        /// <returns>Final redirected url</returns>
+        public async Task<Uri> GetFinalRedirect(string uri, string expectedRedirectUrl, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await FollowRedirects(uri, expectedRedirectUrl, cancellationToken: cancellationToken);
+        }
+
+        private async Task<Uri> FollowRedirects(string targetUrl, string expectedUrl, int maxRedirects = 50, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            HttpResponseMessage response = null;
+            var nextUrl = new Uri(targetUrl);
+            var numRedirects = 0;
+
+            do
+            {
+                try
+                {
+                    if (numRedirects > maxRedirects)
+                    {
+                        throw new HttpRequestException("Stuck in redirect loop");
+                    }
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
+
+                    if (response != null)
+                    {
+                        nextUrl = RetrieveLocation(response);
+                        numRedirects++;
+                    }
+
+                    response = await _noRedirectClient.GetAsync(nextUrl, cancellationToken);
+                }
+                catch (HttpRequestException)
+                {
+                    //If the final redirect is a non-working url then it may cause a request exception, if we verify it is the redirect url then just return it.
+                    //Otherwise it was a request failure at some other point in the redirect chain
+                    if (nextUrl.AbsoluteUri.StartsWith(expectedUrl))
+                    {
+                        return nextUrl;
+                    }
+                    throw;
+                }
+            } while (((int)response.StatusCode).ToString().StartsWith("3"));
+
+            return response.RequestMessage.RequestUri;
+        }
+
+        private Uri RetrieveLocation(HttpResponseMessage message)
+        {
+            var uri = message.Headers.Location;
+
+            if (!uri.IsAbsoluteUri && uri.OriginalString.StartsWith("/"))
+            {
+                var requestUri = message.RequestMessage.RequestUri;
+                var absolute = string.Format("{0}://{1}{2}", requestUri.Scheme, requestUri.Authority, uri.OriginalString);
+                uri = new Uri(absolute);
+            }
+
+            return uri;
+        }
+
         /// <inheritdoc/>
         public void Dispose()
         {
-            if(!_disposed)
+            if (!_disposed)
             {
                 _client.Dispose();
                 _disposed = true;
