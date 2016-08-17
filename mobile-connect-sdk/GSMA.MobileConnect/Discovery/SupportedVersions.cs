@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using GSMA.MobileConnect.Constants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace GSMA.MobileConnect.Discovery
 {
@@ -7,7 +11,20 @@ namespace GSMA.MobileConnect.Discovery
     /// </summary>
     public class SupportedVersions
     {
+        private static readonly Regex _versionRegex = new Regex(@"(?:\d+\.?){1,4}");
+        private static readonly List<string> _recognisedScopes = new List<string>
+        {
+            MobileConnectConstants.MOBILECONNECT,
+            MobileConnectConstants.MOBILECONNECTAUTHENTICATION,
+            MobileConnectConstants.MOBILECONNECTAUTHORIZATION,
+            MobileConnectConstants.MOBILECONNECTIDENTITYNATIONALID,
+            MobileConnectConstants.MOBILECONNECTIDENTITYPHONE,
+            MobileConnectConstants.MOBILECONNECTIDENTITYSIGNUP,
+            MobileConnectConstants.MOBILECONNECTIDENTITYSIGNUPPLUS
+        };
+
         private readonly Dictionary<string, string> _initialValuesDict;
+        private readonly Version _maxSupportedVersion;
 
         internal Dictionary<string, string> InitialValues
         {
@@ -15,12 +32,40 @@ namespace GSMA.MobileConnect.Discovery
         }
 
         /// <summary>
-        /// 
+        /// Creates a new instance of the SupportedVersions class using the versionSupport dictionary to generate initial values
         /// </summary>
         /// <param name="versionSupport"></param>
         public SupportedVersions(Dictionary<string, string> versionSupport)
         {
             _initialValuesDict = versionSupport ?? new Dictionary<string, string>();
+            _maxSupportedVersion = IdentifyMaxSupportedVersion(_initialValuesDict);
+        }
+
+        private static Version IdentifyMaxSupportedVersion(Dictionary<string, string> versionSupport)
+        {
+            // Use default scope as default max version
+            Version max = GetAsVersion(Utils.MobileConnectVersions.CoerceVersion(null, MobileConnectConstants.MOBILECONNECT));
+            foreach (var kvp in versionSupport)
+            {
+                var version = GetAsVersion(kvp.Value);
+                if(version > max)
+                {
+                    max = version;
+                }
+            }
+
+            return max;
+        }
+
+        private static Version GetAsVersion(string version)
+        {
+            var match = _versionRegex.Match(version);
+            if(match.Captures.Count == 0)
+            {
+                return null;
+            }
+
+            return new Version(match.Captures[0].Value.TrimEnd('.'));
         }
 
         /// <summary>
@@ -30,6 +75,11 @@ namespace GSMA.MobileConnect.Discovery
         /// <param name="scope">Scope value to retrieve supported version for</param>
         public string GetSupportedVersion(string scope)
         {
+            if (_recognisedScopes.FirstOrDefault(x => string.Equals(x, scope, StringComparison.OrdinalIgnoreCase)) == null)
+            {
+                return null;
+            }
+
             string version;
             if (!InitialValues.TryGetValue(scope, out version))
             {
@@ -37,6 +87,22 @@ namespace GSMA.MobileConnect.Discovery
             }
 
             return Utils.MobileConnectVersions.CoerceVersion(version, scope);
+        }
+
+        /// <summary>
+        /// Test for support of the specified version or a greater version
+        /// </summary>
+        /// <param name="version">Version to test support</param>
+        /// <returns>True if version or higher is supported</returns>
+        public bool IsVersionSupported(string version)
+        {
+            if(string.IsNullOrEmpty(version))
+            {
+                return false;
+            }
+
+            var trueVersion = GetAsVersion(version);
+            return _maxSupportedVersion >= trueVersion;
         }
     }
 }
