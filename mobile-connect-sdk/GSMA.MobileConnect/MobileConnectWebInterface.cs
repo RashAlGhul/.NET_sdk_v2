@@ -239,6 +239,70 @@ namespace GSMA.MobileConnect
         }
 
         /// <summary>
+        /// Refresh token using using the refresh token provided in the RequestToken response
+        /// </summary>
+        /// <param name="request">Originating web request</param>
+        /// <param name="refreshToken">Refresh token returned from RefreshToken request</param>
+        /// <param name="discoveryResponse">The response returned by the discovery process</param>
+        /// <returns>Object with required information for continuing the mobile connect process</returns>
+        public async Task<MobileConnectStatus> RefreshTokenAsync(HttpRequestMessage request, string refreshToken, DiscoveryResponse discoveryResponse)
+        {
+            return await MobileConnectInterfaceHelper.RefreshToken(_authentication, refreshToken, discoveryResponse, _config);
+        }
+
+        /// <summary>
+        /// Refresh token using using the refresh token provided in the RequestToken response
+        /// </summary>
+        /// <param name="request">Originating web request</param>
+        /// <param name="refreshToken">Refresh token returned from RefreshToken request</param>
+        /// <param name="sdkSession">SDKSession id used to fetch the discovery response with additional parameters that are required to refresh a token</param>
+        /// <returns>Object with required information for continuing the mobile connect process</returns>
+        public async Task<MobileConnectStatus> RefreshTokenAsync(HttpRequestMessage request, string refreshToken, string sdkSession)
+        {
+            var discoveryResponse = await GetSessionFromCache(sdkSession);
+
+            if (discoveryResponse == null)
+            {
+                return GetCacheError();
+            }
+
+            return await RefreshTokenAsync(request, refreshToken, discoveryResponse);
+        }
+
+        /// <summary>
+        /// Revoke token using using the access / refresh token provided in the RequestToken response
+        /// </summary>
+        /// <param name="request">Originating web request</param>
+        /// <param name="token">Access/Refresh token returned from RequestToken request</param>
+        /// <param name="tokenTypeHint">Hint to indicate the type of token being passed in</param>
+        /// <param name="discoveryResponse">The response returned by the discovery process</param>
+        /// <returns>Object with required information for continuing the mobile connect process</returns>
+        public async Task<MobileConnectStatus> RevokeTokenAsync(HttpRequestMessage request, string token, string tokenTypeHint, DiscoveryResponse discoveryResponse)
+        {
+            return await MobileConnectInterfaceHelper.RevokeToken(_authentication, token, tokenTypeHint, discoveryResponse, _config);
+        }
+
+        /// <summary>
+        /// Revoke token using using the access / refresh token provided in the RequestToken response
+        /// </summary>
+        /// <param name="request">Originating web request</param>
+        /// <param name="token">Access/Refresh token returned from RequestToken request</param>
+        /// <param name="tokenTypeHint">Hint to indicate the type of token being passed in</param>
+        /// <param name="sdkSession">SDKSession id used to fetch the discovery response with additional parameters that are required to revoke a token</param>
+        /// <returns>Object with required information for continuing the mobile connect process</returns>
+        public async Task<MobileConnectStatus> RevokeTokenAsync(HttpRequestMessage request, string token, string tokenTypeHint, string sdkSession)
+        {
+            var discoveryResponse = await GetSessionFromCache(sdkSession);
+
+            if (discoveryResponse == null)
+            {
+                return GetCacheError();
+            }
+
+            return await RevokeTokenAsync(request, token, tokenTypeHint, discoveryResponse);
+        }
+
+        /// <summary>
         /// Handles continuation of the process following a completed redirect, the request token url must be provided if it has been returned by the discovery process.
         /// Only the request and redirectedUrl are required, however if the redirect being handled is the result of calling the Authorization URL then the remaining parameters are required.
         /// </summary>

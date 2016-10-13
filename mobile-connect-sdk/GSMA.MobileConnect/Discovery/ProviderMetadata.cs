@@ -71,8 +71,14 @@ namespace GSMA.MobileConnect.Discovery
         /// <summary>
         /// Revoke Token endpoint to use if different from url returned by discovery
         /// </summary>
-        [JsonProperty("revoke_endpoint")]
+        [JsonProperty("revocation_endpoint")]
         public string RevokeEndpoint { get; set; }
+
+        /// <summary>
+        /// Refresh Token endpoint to use if different from url returned by discovery
+        /// </summary>
+        [JsonProperty("refresh_endpoint")]
+        public string RefreshEndpoint { get; set; }
 
         /// <summary>
         /// Registration endpoint to use if different from url returned by discovery
