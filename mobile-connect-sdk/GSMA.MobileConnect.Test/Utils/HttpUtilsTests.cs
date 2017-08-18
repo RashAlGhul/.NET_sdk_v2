@@ -7,7 +7,7 @@ using System.Net.Http;
 
 namespace GSMA.MobileConnect.Test.Utils
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class HttpUtilsTests
     {
         [Test]

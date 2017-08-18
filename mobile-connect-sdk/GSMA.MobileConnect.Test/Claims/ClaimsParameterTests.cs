@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace GSMA.MobileConnect.Test.Claims
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class ClaimsParameterTests
     {
         [Test]

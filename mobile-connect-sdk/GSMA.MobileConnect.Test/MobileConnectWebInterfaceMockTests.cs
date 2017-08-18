@@ -11,7 +11,7 @@ namespace GSMA.MobileConnect.Test
 {
     // These tests use a mock rest client so the methods that require authorisation can be tested, we can't test these directly on a true endpoint because we can't complete authorisation
     // without a javascript enabled browser implementation
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class MobileConnectWebInterfaceMockTests
     {
         private static RestResponse _unauthorizedResponse = new RestResponse(System.Net.HttpStatusCode.Unauthorized, "")

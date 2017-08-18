@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace GSMA.MobileConnect.Test.Authentication
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class AuthenticationServiceTests
     {
         private const string REDIRECT_URL = "http://localhost:8080/";

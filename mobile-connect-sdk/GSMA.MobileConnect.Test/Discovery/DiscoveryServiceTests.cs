@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test.Discovery
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class DiscoveryServiceTests
     {
         private const string REDIRECT_URL = "http://localhost:8080/";

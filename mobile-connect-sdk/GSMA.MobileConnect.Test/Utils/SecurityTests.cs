@@ -1,14 +1,10 @@
 ﻿using GSMA.MobileConnect.Utils;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test.Utils
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class SecurityTests
     {
         [Test]

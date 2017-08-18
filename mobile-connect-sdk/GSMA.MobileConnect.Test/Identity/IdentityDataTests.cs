@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace GSMA.MobileConnect.Test.Identity
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class IdentityDataTests
     {
         [Test]

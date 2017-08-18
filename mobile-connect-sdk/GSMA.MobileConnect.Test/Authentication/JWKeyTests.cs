@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace GSMA.MobileConnect.Test.Authentication
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class JWKeyTests
     {
         private Dictionary<string, string> _jwks = new Dictionary<string, string>
@@ -106,7 +106,7 @@ namespace GSMA.MobileConnect.Test.Authentication
             }
 
             var header = JObject.Parse(JsonWebToken.DecodePart(token, JWTPart.Header));
-            if(modifyHeader)
+            if (modifyHeader)
             {
                 header["alg"] = "ES256";
             }

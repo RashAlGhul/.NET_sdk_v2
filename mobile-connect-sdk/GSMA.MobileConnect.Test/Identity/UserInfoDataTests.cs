@@ -1,11 +1,10 @@
 ﻿using GSMA.MobileConnect.Identity;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
 
 namespace GSMA.MobileConnect.Test.Identity
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class UserInfoDataTests
     {
         [Test]

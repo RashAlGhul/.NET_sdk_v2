@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace GSMA.MobileConnect.Test.Web
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class ResponseConverterTests
     {
         private const string OPERATOR_SELECTION_URL = "http://discovery.sandbox2.mobileconnect.io/v2/discovery/users/operator-selection?session_id=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyZWRpcmVjdFVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMS8iLCJhcHBsaWNhdGlvbiI6eyJleHRlcm5hbF9pZCI6IjExMzgiLCJuYW1lIjoiY3NoYXJwLXNkayIsImtleXMiOnsic2FuZGJveCI6eyJrZXkiOiI2Njc0MmE4NS0yMjgyLTQ3NDctODgxZC1lZDViN2JkNzRkMmQiLCJzZWNyZXQiOiJmMTUxOTlmNC1iNjU4LTRlNTgtOGJiMy1lNDA5OTg4NzMzOTIifX0sInJlZGlyZWN0X3VyaSI6Imh0dHBzOi8vbG9jYWxob3N0OjgwMDEvIiwiZGV2ZWxvcGVyIjp7InBvcnRhbF91c2VyX2lkIjoiMTEzOCIsIm5hbWUiOiJOaWNob2xhcyBEb25vaG9lIiwiZW1haWwiOiJuaWNob2xhcy5kb25vaG9lQGJqc3MuY29tIiwicHJvZmlsZSI6Imh0dHBzOi8vZGV2ZWxvcGVyLm1vYmlsZWNvbm5lY3QuaW8vYXBpL3YxL3VzZXI_ZW1haWw9bmljaG9sYXMuZG9ub2hvZSU0MGJqc3MuY29tIiwidXBkYXRlZCI6IjIwMTYtMDQtMjBUMDk6MzQ6MThaIiwibXNpc2RucyI6WyI5NDE0ZTI1MmMzYjE1ZWUzMGIyN2NmYmQxNjkzN2UwNWJlMGQ1NWYwZGZjZGQ0MjM2OTg3NTU1MjQ3ZjU0YzUyIiwiZjYwZjFkZDU1YzUxMjE3ZTAwMTc4YWE3ZGIxM2Q5Njc4OGUxZmM0MzRkMGU2ZGZiZmI2NjVlYjU5NzU3MGIwZiJdLCJtc2lzZG5TaG9ydCI6WyI3NTc1IiwiMzMzMyJdLCJzbXNBdXRoIjp0cnVlLCJtY2MiOiI5MDEiLCJtbmMiOiIwMSIsImNvbnNlbnQiOmZhbHNlfX0sInVzZXIiOnsibmFtZSI6IjY2NzQyYTg1LTIyODItNDc0Ny04ODFkLWVkNWI3YmQ3NGQyZCIsInBhc3MiOiJmMTUxOTlmNC1iNjU4LTRlNTgtOGJiMy1lNDA5OTg4NzMzOTIifSwiaWF0IjoxNDYxMTY5MzA5fQ.2Lp0Xt9JXVZxNbnNq_RH-5KJPQ06qw6ttR4ZK3fwcQU";
@@ -31,6 +31,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("success", actual.Status);
             Assert.AreEqual("operator_selection", actual.Action);
             Assert.AreEqual(OPERATOR_SELECTION_URL, actual.Url);
@@ -47,6 +49,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("success", actual.Status);
             Assert.AreEqual("start_authentication", actual.Action);
             Assert.IsNotNull(actual.SdkSession);
@@ -63,6 +67,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("success", actual.Status);
             Assert.AreEqual("authentication", actual.Action);
             Assert.AreEqual(AUTHORIZE_URL, actual.Url);
@@ -79,6 +85,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("success", actual.Status);
             Assert.AreEqual("complete", actual.Action);
             Assert.AreEqual(status.TokenResponse.ResponseData, actual.Token);
@@ -92,6 +100,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("success", actual.Status);
             Assert.AreEqual("discovery", actual.Action);
         }
@@ -105,6 +115,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("success", actual.Status);
             Assert.AreEqual("token_revoked", actual.Action);
         }
@@ -119,6 +131,8 @@ namespace GSMA.MobileConnect.Test.Web
             var actual = ResponseConverter.Convert(status);
 
             Assert.IsNotNull(actual);
+            Assert.Null(actual.ApplicationShortName);
+            Assert.Null(actual.Identity);
             Assert.AreEqual("failure", actual.Status);
             Assert.AreEqual("error", actual.Action);
             Assert.AreEqual(error, actual.Error);

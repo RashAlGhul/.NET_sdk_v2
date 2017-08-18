@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GSMA.MobileConnect.Test.Discovery
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class SupportedVersionsTests
     {
         [Test]

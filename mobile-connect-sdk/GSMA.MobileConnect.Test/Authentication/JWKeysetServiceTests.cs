@@ -2,15 +2,13 @@
 using GSMA.MobileConnect.Cache;
 using GSMA.MobileConnect.Utils;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test.Authentication
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class JWKeysetServiceTests
     {
         private Dictionary<string, RestResponse> _responses = new Dictionary<string, RestResponse>()

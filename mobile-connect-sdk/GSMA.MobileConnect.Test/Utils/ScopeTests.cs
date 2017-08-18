@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace GSMA.MobileConnect.Test.Utils
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class ScopeTests
     {
         [Test]

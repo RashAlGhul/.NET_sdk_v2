@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace GSMA.MobileConnect.Test
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class ErrorResponseTests
     {
         [Test]
@@ -32,6 +32,18 @@ namespace GSMA.MobileConnect.Test
             Assert.AreEqual(error, actual.Error);
             Assert.AreEqual(description, actual.ErrorDescription);
             Assert.AreEqual(uri, actual.ErrorUri);
+        }
+
+        [Test]
+        public void CreateErrorResponseFromEmptyUrl()
+        {
+            Assert.IsNull(ErrorResponse.CreateFromUrl(""));
+        }
+
+        [Test]
+        public void CreateErrorResponseFromString()
+        {
+            Assert.IsNull(ErrorResponse.CreateFromUrl("someString"));
         }
     }
 }

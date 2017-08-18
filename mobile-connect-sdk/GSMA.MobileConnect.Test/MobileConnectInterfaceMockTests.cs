@@ -12,7 +12,7 @@ namespace GSMA.MobileConnect.Test
 {
     // These tests use a mock rest client so the methods that require authorisation can be tested, we can't test these directly on a true endpoint because we can't complete authorisation
     // without a javascript enabled browser implementation
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class MobileConnectInterfaceMockTests
     {
         private static RestResponse _unauthorizedResponse = new RestResponse(System.Net.HttpStatusCode.Unauthorized, "")
@@ -95,7 +95,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public async Task RequestTokenAcceptsValidToken()
         {
-            _restClient.QueueParallelResponses(Tuple.Create<string, object>(_discoveryResponse.OperatorUrls.JWKSUrl, _responses["jwks"]), 
+            _restClient.QueueParallelResponses(Tuple.Create<string, object>(_discoveryResponse.OperatorUrls.JWKSUrl, _responses["jwks"]),
                 Tuple.Create<string, object>(_discoveryResponse.OperatorUrls.RequestTokenUrl, _responses["token"]));
 
             var result = await _mobileConnect.RequestTokenAsync(_discoveryResponse, new Uri($"{_config.RedirectUrl}?code=123123123456&state=zxcvbnm"), "zxcvbnm", "1234567890", null);
@@ -134,8 +134,8 @@ namespace GSMA.MobileConnect.Test
         public async Task RefreshTokenShouldUseRefreshTokenUrl()
         {
             _discoveryResponse.OperatorUrls.RefreshTokenUrl = "http://refresh";
-            _discoveryResponse.OperatorUrls.RequestTokenUrl= "http://request";
-            _restClient.QueueParallelResponses(Tuple.Create<string, object>(_discoveryResponse.OperatorUrls.RefreshTokenUrl, _responses["token"]), 
+            _discoveryResponse.OperatorUrls.RequestTokenUrl = "http://request";
+            _restClient.QueueParallelResponses(Tuple.Create<string, object>(_discoveryResponse.OperatorUrls.RefreshTokenUrl, _responses["token"]),
                 Tuple.Create<string, object>(_discoveryResponse.OperatorUrls.RequestTokenUrl, _responses["error"]));
 
             var result = await _mobileConnect.RefreshTokenAsync("token", _discoveryResponse);

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GSMA.MobileConnect.Test.Identity
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class IdentityServiceTests
     {
         private static RestResponse _unauthorizedResponse = new RestResponse(System.Net.HttpStatusCode.Unauthorized, "")

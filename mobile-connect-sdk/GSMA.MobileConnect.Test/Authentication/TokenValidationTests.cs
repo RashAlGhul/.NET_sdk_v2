@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace GSMA.MobileConnect.Test.Authentication
 {
+    [TestFixture, Parallelizable]
     public class TokenValidationTests
     {
         private string nonce = "1234567890";

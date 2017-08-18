@@ -2,7 +2,7 @@
 
 namespace GSMA.MobileConnect.Test
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class MobileConnectRequestOptionsTests
     {
         [Test]

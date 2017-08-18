@@ -4,14 +4,12 @@ using GSMA.MobileConnect.Discovery;
 using GSMA.MobileConnect.Identity;
 using GSMA.MobileConnect.Utils;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     [Category("EndToEnd")]
     public class EndToEndTests
     {

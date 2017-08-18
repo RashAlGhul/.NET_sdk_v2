@@ -24,8 +24,8 @@ namespace GSMA.MobileConnect.Test
         public static TestConfigurationData GetConfig(string environment)
         {
             TestConfigurationData data;
-            if(!_availablesConfigs.TryGetValue(environment, out data))
-            { 
+            if (!_availablesConfigs.TryGetValue(environment, out data))
+            {
                 Assert.Inconclusive($"Test cancelled as config was not found for {environment}, one or more of the following environment variables are missing, GSMADemo{environment}ClientId, GSMADemo{environment}ClientSecret, GSMADemo{environment}DiscoveryUrl, GSMADemoRedirectUrl.");
             }
 
@@ -40,7 +40,7 @@ namespace GSMA.MobileConnect.Test
             {
                 var config = CreateConfig(environment);
 
-                if(config != null)
+                if (config != null)
                 {
                     _availablesConfigs.Add(environment, config);
                 }
@@ -54,12 +54,12 @@ namespace GSMA.MobileConnect.Test
             string discoveryVar = $"GSMADemo{environment}DiscoveryUrl";
             string redirectVar = "GSMADemoRedirectUrl";
 
-            string clientId = System.Environment.GetEnvironmentVariable(clientIdVar);
-            string clientSecret = System.Environment.GetEnvironmentVariable(clientSecretVar);
-            string discoveryUrl = System.Environment.GetEnvironmentVariable(discoveryVar);
-            string redirectUrl = System.Environment.GetEnvironmentVariable(redirectVar);
+            string clientId = clientIdVar;//System.Environment.GetEnvironmentVariable(clientIdVar);
+            string clientSecret = clientSecretVar;//System.Environment.GetEnvironmentVariable(clientSecretVar);
+            string discoveryUrl = discoveryVar;//System.Environment.GetEnvironmentVariable(discoveryVar);
+            string redirectUrl = redirectVar;//System.Environment.GetEnvironmentVariable(redirectVar);
 
-            if(clientId == null || clientSecret == null || discoveryUrl == null || redirectUrl == null)
+            if (clientId == null || clientSecret == null || discoveryUrl == null || redirectUrl == null)
             {
                 return null;
             }

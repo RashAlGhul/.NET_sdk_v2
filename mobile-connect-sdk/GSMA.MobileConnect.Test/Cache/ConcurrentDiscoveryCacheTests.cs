@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test.Cache
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class ConcurrentDiscoveryCacheTests
     {
         private List<RestResponse> _responses;

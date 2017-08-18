@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GSMA.MobileConnect.Test.Authentication
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     public class LoginHintTests
     {
         [Test]
@@ -14,7 +14,7 @@ namespace GSMA.MobileConnect.Test.Authentication
         {
             var metadata = GetMetadataWithSupportedLoginHint(LoginHintPrefixes.MSISDN);
 
-            var actual = LoginHint.IsSupportedForEncryptedMsisdn(metadata);
+            var actual = LoginHint.IsSupportedForMsisdn(metadata);
 
             Assert.IsTrue(actual);
         }
@@ -175,7 +175,10 @@ namespace GSMA.MobileConnect.Test.Authentication
 
         private ProviderMetadata GetMetadataWithSupportedLoginHint(string supported)
         {
-            return new ProviderMetadata { LoginHintMethodsSupported = new List<string> { supported } };
+            return new ProviderMetadata
+            {
+                LoginHintMethodsSupported = new List<string> { supported }
+            };
         }
     }
 }

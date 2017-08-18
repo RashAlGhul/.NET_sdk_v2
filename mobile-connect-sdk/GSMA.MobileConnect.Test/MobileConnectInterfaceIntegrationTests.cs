@@ -1,8 +1,6 @@
-﻿using GSMA.MobileConnect.Authentication;
-using GSMA.MobileConnect.Cache;
+﻿using GSMA.MobileConnect.Cache;
 using GSMA.MobileConnect.Discovery;
 using GSMA.MobileConnect.Exceptions;
-using GSMA.MobileConnect.Identity;
 using GSMA.MobileConnect.Utils;
 using NUnit.Framework;
 using System;
@@ -11,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     [Category("Integration")]
     public class MobileConnectInterfaceIntegrationTests
     {
@@ -320,7 +318,7 @@ namespace GSMA.MobileConnect.Test
             var discoveryResponse = new DiscoveryResponse(new RestResponse(System.Net.HttpStatusCode.OK, responseJson));
             discoveryResponse.ProviderMetadata = ProviderMetadata.Default;
             var uri = new Uri("http://localhost?code=code&state=state&nonce=nonce");
-            mockClient.QueueParallelResponses(Tuple.Create<string, object>(discoveryResponse.OperatorUrls.JWKSUrl, new RestResponse(System.Net.HttpStatusCode.OK, jwksJson)), 
+            mockClient.QueueParallelResponses(Tuple.Create<string, object>(discoveryResponse.OperatorUrls.JWKSUrl, new RestResponse(System.Net.HttpStatusCode.OK, jwksJson)),
                 Tuple.Create<string, object>(discoveryResponse.OperatorUrls.RequestTokenUrl, new HttpRequestException()));
             var response = await _mobileConnect.RequestTokenAsync(discoveryResponse, uri, "state", "nonce", new MobileConnectRequestOptions());
 

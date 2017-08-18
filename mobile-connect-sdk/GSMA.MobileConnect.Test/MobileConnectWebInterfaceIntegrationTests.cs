@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test
 {
-    [TestFixture]
+    [TestFixture, Parallelizable]
     [Category("Integration")]
     public class MobileConnectWebInterfaceIntegrationTests
     {
