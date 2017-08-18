@@ -10,6 +10,12 @@ namespace GSMA.MobileConnect.Test
     [TestFixture, Parallelizable]
     public class LogTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            Log.RegisterLogger(null);
+        }
+
         [Test]
         public void DebugShouldNotExecuteMessageFuncIfLoggerNull()
         {
@@ -34,7 +40,6 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void DebugShouldExitFromVoid()
         {
-            Log.RegisterLogger(null);
             Log.Debug("Message");
         }
 
@@ -70,7 +75,6 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void InfoShouldExitFromVoid()
         {
-            Log.RegisterLogger(null);
             Log.Info("Message");
         }
 
@@ -106,7 +110,6 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void WarningShouldExitFromVoid()
         {
-            Log.RegisterLogger(null);
             Log.Warning("Message");
         }
 
@@ -142,7 +145,6 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void ErrorShouldExitFromVoid()
         {
-            Log.RegisterLogger(null);
             Log.Error("Message");
         }
 
@@ -178,7 +180,14 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void FatalShouldExitFromVoid()
         {
-            Log.RegisterLogger(null);
+            Log.Fatal("Message", new Exception("exception"));
+        }
+
+        [Test]
+        public void FatalShould()
+        {
+            TestLogger logger = new TestLogger();
+            Log.RegisterLogger(logger, LogLevel.Fatal);
             Log.Fatal("Message", new Exception("exception"));
         }
 
@@ -188,12 +197,6 @@ namespace GSMA.MobileConnect.Test
             TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Fatal);
             Log.Error("Message");
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            Log.RegisterLogger(null);
         }
     }
 }
