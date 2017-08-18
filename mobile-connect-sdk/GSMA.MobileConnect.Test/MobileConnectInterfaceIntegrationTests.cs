@@ -30,8 +30,16 @@ namespace GSMA.MobileConnect.Test
         [SetUp]
         public void Setup()
         {
+            TestLogger logger = new TestLogger();
+            Log.RegisterLogger(logger, LogLevel.Error);
             _testConfig = TestConfig.GetConfig(TestConfig.DEFAULT_TEST_CONFIG);
             Setup(new RestClient());
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Log.RegisterLogger(null);
         }
 
         public void Setup(RestClient client)
