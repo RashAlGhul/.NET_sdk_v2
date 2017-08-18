@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using GSMA.MobileConnect.Claims;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -63,6 +64,29 @@ namespace GSMA.MobileConnect.Test.Claims
             Assert.AreEqual(2, claims.Count);
             Assert.True(claims.ContainsKey("test"));
             Assert.True(claims.Contains(new KeyValuePair<string, ClaimsValue>("test2", claimsValue)));
+        }
+
+        [Test]
+        public void ClaimsDictionaryShouldCopyKeyPairValue()
+        {
+            var claims = new ClaimsDictionary();
+            Assert.False(claims.IsReadOnly);
+            claims.AddWithValue("test", true, "value");
+            object[] objects = { "1234567", "7654321" };
+            claims.AddWithValues("test2", true, objects);
+            Assert.True(claims.TryGetValue("test", out var claimsValue));
+            KeyValuePair<string, ClaimsValue>[] keyValuePairArray =
+            {
+                new KeyValuePair<string, ClaimsValue>("test3", claimsValue),
+                new KeyValuePair<string, ClaimsValue>("test4", claimsValue)
+            };
+
+            claims.CopyTo(keyValuePairArray, 0); 
+
+            Assert.AreEqual(2, claims.Count);
+            Assert.AreEqual(2, keyValuePairArray.Length);
+            Assert.AreEqual(claims["test"].Value, keyValuePairArray[0].Value.Value);
+            Assert.AreEqual(claims["test2"].Values, keyValuePairArray[1].Value.Values);
         }
 
         [Test]

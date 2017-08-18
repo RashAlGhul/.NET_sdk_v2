@@ -47,6 +47,8 @@ namespace GSMA.MobileConnect.Test
         [SetUp]
         public void Setup()
         {
+            TestLogger logger = new TestLogger();
+            Log.RegisterLogger(logger, LogLevel.Info);
             _restClient = new MockRestClient();
             _cache = new ConcurrentCache();
             _discovery = new DiscoveryService(_cache, _restClient);
@@ -191,5 +193,13 @@ namespace GSMA.MobileConnect.Test
             Assert.AreEqual(MobileConnectResponseType.Error, result.ResponseType);
             Assert.AreEqual(result.ErrorCode, Constants.ErrorCodes.NotSupported);
         }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Log.RegisterLogger(null);
+        }
+
+        
     }
 }

@@ -42,6 +42,7 @@ namespace GSMA.MobileConnect.Test
         private MobileConnect.Authentication.IAuthenticationService _authentication;
         private MobileConnect.Identity.IIdentityService _identity;
         private MobileConnect.Authentication.IJWKeysetService _jwks;
+        private MobileConnectWebInterface _mobileConnectBase;
         private MobileConnectWebInterface _mobileConnect;
 
         private HttpRequestMessage _request = new HttpRequestMessage(HttpMethod.Get, "http://discovery.mobileconnect.io");
@@ -49,6 +50,8 @@ namespace GSMA.MobileConnect.Test
         [SetUp]
         public void Setup()
         {
+            TestLogger logger = new TestLogger();
+            Log.RegisterLogger(logger, LogLevel.Debug);
             _restClient = new MockRestClient();
             _cache = new ConcurrentCache();
             _discovery = new GSMA.MobileConnect.Discovery.DiscoveryService(_cache, _restClient);
@@ -64,9 +67,10 @@ namespace GSMA.MobileConnect.Test
                 ClientId = "zxcvbnm",
                 ClientSecret = "asdfghjkl",
                 DiscoveryUrl = "qwertyuiop",
+                XRedirect = "Xredirect.aspx",
                 RedirectUrl = "http://qwertyuiop",
             };
-
+            _mobileConnectBase = new MobileConnectWebInterface(_discovery, _authentication, _config);
             _mobileConnect = new MobileConnectWebInterface(_discovery, _authentication, _identity, _jwks, _config);
         }
 
@@ -82,7 +86,7 @@ namespace GSMA.MobileConnect.Test
         {
             var discoveryResponse = CompleteDiscovery();
 
-            var result = _mobileConnect.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions());
+            var result = _mobileConnectBase.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions());
             var scope = HttpUtils.ExtractQueryValue(result.Url, "scope");
 
             Assert.AreEqual(MobileConnectResponseType.Authentication, result.ResponseType);
@@ -95,7 +99,7 @@ namespace GSMA.MobileConnect.Test
         {
             var discoveryResponse = CompleteDiscovery();
 
-            var result = _mobileConnect.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Context = "context" });
+            var result = _mobileConnectBase.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Context = "context" });
             var scope = HttpUtils.ExtractQueryValue(result.Url, "scope");
 
             Assert.AreEqual(MobileConnectResponseType.Authentication, result.ResponseType);
@@ -108,7 +112,7 @@ namespace GSMA.MobileConnect.Test
         {
             var discoveryResponse = CompleteDiscovery();
 
-            var result = _mobileConnect.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Scope = "mc_authz", Context = "context", BindingMessage = "message" });
+            var result = _mobileConnectBase.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Scope = "mc_authz", Context = "context", BindingMessage = "message" });
             var scope = HttpUtils.ExtractQueryValue(result.Url, "scope");
 
             Assert.AreEqual(MobileConnectResponseType.Authentication, result.ResponseType);
@@ -121,7 +125,7 @@ namespace GSMA.MobileConnect.Test
         {
             var discoveryResponse = CompleteDiscovery();
 
-            var result = _mobileConnect.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Scope = "mc_identity_phone", Context = "context", BindingMessage = "message" });
+            var result = _mobileConnectBase.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Scope = "mc_identity_phone", Context = "context", BindingMessage = "message" });
             var scope = HttpUtils.ExtractQueryValue(result.Url, "scope");
 
             Assert.AreEqual(MobileConnectResponseType.Authentication, result.ResponseType);
@@ -136,7 +140,7 @@ namespace GSMA.MobileConnect.Test
             var discoveryResponse = CompleteDiscovery();
             var expected = "csharp-sdk";
 
-            var result = _mobileConnect.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Scope = "mc_identity_phone", Context = "context", BindingMessage = "message" });
+            var result = _mobileConnectBase.StartAuthentication(_request, discoveryResponse, "1111222233334444", "state", "nonce", new MobileConnectRequestOptions { Scope = "mc_identity_phone", Context = "context", BindingMessage = "message" });
             var clientName = HttpUtils.ExtractQueryValue(result.Url, "client_name");
 
             Assert.AreEqual(expected, clientName);
@@ -176,6 +180,17 @@ namespace GSMA.MobileConnect.Test
 
             Assert.IsNotNull(result.IdentityResponse);
             Assert.AreEqual(MobileConnectResponseType.UserInfo, result.ResponseType);
+        }
+
+        [Test]
+        public async Task RequestUserInfoWithInvalideSdkSession()
+        {
+            _restClient.NextExpectedResponse = _responses["user-info"];
+
+            var result = await _mobileConnect.RequestUserInfoAsync(_request, "", "zaqwsxcderfvbgtyhnmjukilop", new MobileConnectRequestOptions());
+
+            Assert.IsNull(result.IdentityResponse);
+            Assert.AreEqual(MobileConnectResponseType.Error, result.ResponseType);
         }
 
         [Test]
@@ -252,6 +267,22 @@ namespace GSMA.MobileConnect.Test
         }
 
         [Test]
+        public async Task RefreshTokenShouldReturnErrorWhenSdkInvalide()
+        {
+            string session = "zzzz";
+            var discoveryResponse = CompleteDiscovery();
+            discoveryResponse.ProviderMetadata.RefreshEndpoint = null;
+            discoveryResponse.ProviderMetadata.TokenEndpoint = null;
+            discoveryResponse.ResponseData?.response?.apis?.operatorid?.link?.Clear();
+            await _cache.Add(session, discoveryResponse);
+
+            var result = await _mobileConnect.RefreshTokenAsync(_request, "token", "");
+
+            Assert.AreEqual(MobileConnectResponseType.Error, result.ResponseType);
+            Assert.AreEqual(result.ErrorCode, Constants.ErrorCodes.InvalidSdkSession);
+        }
+
+        [Test]
         public async Task RevokeTokenShouldReturnOk()
         {
             string session = "zzzz";
@@ -281,6 +312,12 @@ namespace GSMA.MobileConnect.Test
 
             Assert.AreEqual(MobileConnectResponseType.Error, result.ResponseType);
             Assert.AreEqual(result.ErrorCode, Constants.ErrorCodes.NotSupported);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Log.RegisterLogger(null);
         }
     }
 }

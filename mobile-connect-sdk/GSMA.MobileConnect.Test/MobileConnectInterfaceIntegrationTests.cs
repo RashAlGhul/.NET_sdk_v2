@@ -118,11 +118,11 @@ namespace GSMA.MobileConnect.Test
         }
 
         [Test]
-        public async Task AttemptDiscoveryAterOperatorSelectionShouldSucceedWithValidCallback()
+        public async Task AttemptDiscoveryAfterOperatorSelectionShouldSucceedWithValidCallback()
         {
             var response = await _mobileConnect.AttemptDiscoveryAfterOperatorSelectionAsync(validOperatorSelectionCallback);
 
-            Assert.AreEqual(MobileConnectResponseType.StartAuthentication, response.ResponseType);
+            Assert.AreEqual(MobileConnectResponseType.StartDiscovery, response.ResponseType);
             Assert.IsNotNull(response.DiscoveryResponse);
         }
 

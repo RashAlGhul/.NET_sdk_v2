@@ -21,12 +21,13 @@ namespace GSMA.MobileConnect.Test
         private Uri noMCCOperatorSelectionCallback = new Uri("http://localhost:8001/?subscriber_id=33bf6c6172098e9521dee0cb86df822354745a2fd25a74caab18461d7477787a203d144e386f1458707a383acba9f248bf07b245c26f54386039f8943ef19578ad94a4307b633e5e4343cc63510199541d4bb3f2c1dd0a843ce80e825f48f9465476a0c11ff277261cdb1b98495855e3e781611f72aa32ff4dc6078b6d15de233304b17d335f299552a2c3d8e208429d0eb9a3b0ffe131717b393205b45d8ce6f6a43cb30331ebd02291f5ee7ca245630d54fcc29cfe907ba1eb237faadbf8ceb2f9aa936173ab48e8aa05d6f35d71e4164d5a94d8476d616fe3972d43fa97f70d7109456e36fd7f5809a980e98e86ead1643c93f80b2e92f8f599b29bb132a4");
         private Uri noQueryOperatorSelectionCallback = new Uri("http://localhost:8001/");
 
-        private const string requestUrl = "http://localhost:8080/mobileconnect";
+        private const string requestUrl = "http://localhost:8001/mobileconnect";
 
         private TestConfigurationData _testConfig;
         private RestClient _restClient;
         private ICache _cache;
         private MobileConnectConfig _config;
+        private MobileConnectWebInterface _mobileConnectBase;
         private MobileConnectWebInterface _mobileConnect;
 
         [SetUp]
@@ -43,7 +44,7 @@ namespace GSMA.MobileConnect.Test
                 ClientSecret = _testConfig.ClientSecret,
                 RedirectUrl = _testConfig.RedirectUrl,
             };
-
+            _mobileConnectBase = new MobileConnectWebInterface(_config, _cache);
             _mobileConnect = new MobileConnectWebInterface(_config, _cache, _restClient);
         }
 
@@ -127,7 +128,7 @@ namespace GSMA.MobileConnect.Test
         public async Task AttemptDiscoveryAfterOperatorSelectionWithNoMCCShouldIndicateStartDiscovery()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            var response = await _mobileConnect.AttemptDiscoveryAfterOperatorSelectionAsync(request, noMCCOperatorSelectionCallback);
+            var response = await _mobileConnectBase.AttemptDiscoveryAfterOperatorSelectionAsync(request, noMCCOperatorSelectionCallback);
 
             Assert.AreEqual(MobileConnectResponseType.StartDiscovery, response.ResponseType);
         }
@@ -136,9 +137,27 @@ namespace GSMA.MobileConnect.Test
         public async Task AttemptDiscoveryAfterOperatorSelectionWithQueryShouldIndicateStartDiscovery()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            var response = await _mobileConnect.AttemptDiscoveryAfterOperatorSelectionAsync(request, noQueryOperatorSelectionCallback);
+            var response = await _mobileConnectBase.AttemptDiscoveryAfterOperatorSelectionAsync(request, noQueryOperatorSelectionCallback);
 
             Assert.AreEqual(MobileConnectResponseType.StartDiscovery, response.ResponseType);
+        }
+
+        [Test]
+        public async Task GenerateStatusFromDiscoveryResponse()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            var response = await _mobileConnect.AttemptDiscoveryAfterOperatorSelectionAsync(request, validOperatorSelectionCallback);
+
+            Assert.IsNotNull(_mobileConnect.GenerateStatusFromDiscoveryResponse(response.DiscoveryResponse));
+        }
+
+        [Test]
+        public async Task GenerateStatusFromDiscoveryWithoutResponse()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            MobileConnectStatus response = await _mobileConnect.AttemptDiscoveryAfterOperatorSelectionAsync(request, validOperatorSelectionCallback);
+
+            Assert.IsNotNull(_mobileConnect.GenerateStatusFromDiscoveryResponse(response.DiscoveryResponse));
         }
 
         [Test]
@@ -169,6 +188,20 @@ namespace GSMA.MobileConnect.Test
 
             Assert.IsNotNull(response);
             Assert.That(response.Url.Contains("client_id=" + clientId));
+        }
+
+        [Test]
+        public void StartAuthenticationWithEmptySdk()
+        {
+            var encryptedMSISDN = "abcdef123452452";
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            var clientId = "123clientid123";
+            var discoveryResponse = new DiscoveryResponse(new RestResponse(System.Net.HttpStatusCode.OK, responseJson));
+            discoveryResponse.ResponseData.response.client_id = clientId;
+
+            var response = _mobileConnect.StartAuthentication(request, "", encryptedMSISDN , null ,null, new MobileConnectRequestOptions());
+
+            Assert.IsNotNull(response);
         }
     }
 }

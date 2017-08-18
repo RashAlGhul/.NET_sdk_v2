@@ -23,7 +23,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void DebugShouldExecuteMessageFunc()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Debug);
             Log.Debug(() =>
             {
@@ -41,7 +41,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void DebugShouldExecuteMessage()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Debug);
             Log.Debug("Message");
         }
@@ -59,7 +59,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void InfoShouldExecuteMessageFunc()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Info);
             Log.Info(() =>
             {
@@ -77,7 +77,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void InfoShouldExecuteMessage()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Info);
             Log.Info("Message");
         }
@@ -95,7 +95,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void WarningShouldNotExecuteMessageFunc()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger);
             Log.Warning(() =>
             {
@@ -113,7 +113,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void WarningShouldExecuteMessage()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger);
             Log.Warning("Message");
         }
@@ -131,7 +131,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void ErrorShouldExecuteMessageFunc()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Error);
             Log.Error(() =>
             {
@@ -149,7 +149,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void ErrorShouldExecuteMessage()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Error);
             Log.Error("Message");
         }
@@ -167,7 +167,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void FatalShouldExecuteMessageFuncIfLoggerNull()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Fatal);
             Log.Fatal(() =>
             {
@@ -185,7 +185,7 @@ namespace GSMA.MobileConnect.Test
         [Test]
         public void FatalShouldExecuteMessage()
         {
-            Logger logger = new Logger();
+            TestLogger logger = new TestLogger();
             Log.RegisterLogger(logger, LogLevel.Fatal);
             Log.Error("Message");
         }
@@ -194,34 +194,6 @@ namespace GSMA.MobileConnect.Test
         public void TearDown()
         {
             Log.RegisterLogger(null);
-        }
-
-        private class Logger : ILogger
-        {
-            public void Info(string message)
-            {
-                Console.WriteLine($"Info: {message}");
-            }
-
-            public void Debug(string message)
-            {
-                Console.WriteLine($"Debug: {message}");
-            }
-
-            public void Warning(string message)
-            {
-                Console.WriteLine($"Warning: {message}");
-            }
-
-            public void Error(string message, Exception ex)
-            {
-                Console.WriteLine($"Error: {message}");
-            }
-
-            public void Fatal(string message, Exception ex)
-            {
-                Console.WriteLine($"Fatal: {message}");
-            }
         }
     }
 }

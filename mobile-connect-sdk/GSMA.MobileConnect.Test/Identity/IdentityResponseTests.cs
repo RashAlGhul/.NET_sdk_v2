@@ -10,6 +10,13 @@ namespace GSMA.MobileConnect.Test.Identity
     [TestFixture, Parallelizable]
     public class IdentityResponseTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            TestLogger logger = new TestLogger();
+            Log.RegisterLogger(logger, LogLevel.Debug);
+        }
+
         [Test]
         public void ConstructorShouldSetResponseJson()
         {
@@ -129,6 +136,12 @@ namespace GSMA.MobileConnect.Test.Identity
             var actual = userInfoResponse.ResponseDataAs<UserInfoData>();
 
             Assert.IsNull(actual);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Log.RegisterLogger(null);
         }
     }
 }
