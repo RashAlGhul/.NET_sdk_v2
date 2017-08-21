@@ -7,6 +7,8 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GSMA.MobileConnect.Test.Authentication
 {
@@ -348,6 +350,18 @@ namespace GSMA.MobileConnect.Test.Authentication
             var actual = _authentication.ValidateTokenResponse(tokenResponse, clientId, "notissuer", nonce, maxAge, jwks, "mc_v1.2");
 
             Assert.AreEqual(TokenValidationResult.InvalidIssuer, actual);
+        }
+
+        [Test]
+        public void RequestHeadlessAuthentication()
+        {
+            string nonce = "1234567890";
+            string clientId = "x-clientid-x";
+            string url = "http://mobileconnect.io";
+
+            var actual = _authentication.RequestHeadlessAuthentication(clientId, "secret", url, url, url, "stable", nonce, "324",
+                _defaultVersions, new AuthenticationOptions { Context = "context", BindingMessage = "bind", ClientName = "name" }, CancellationToken.None);
+            Assert.AreEqual(TaskStatus.Faulted, actual.Status);
         }
 
         #region Argument Validation
