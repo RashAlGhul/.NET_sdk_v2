@@ -13,6 +13,18 @@ namespace GSMA.MobileConnect.Test
     [Category("EndToEnd")]
     public class EndToEndTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            Log.RegisterLogger(new TestLogger(), LogLevel.Error);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Log.RegisterLogger(null);
+        }
+
         [TestCase("SandboxR2")]
         public async Task MobileConnectWebInterfaceShouldWorkEndToEndHeadlessAuthentication(string configKey)
         {
