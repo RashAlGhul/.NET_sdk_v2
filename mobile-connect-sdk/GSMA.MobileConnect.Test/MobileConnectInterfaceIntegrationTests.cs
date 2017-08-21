@@ -130,7 +130,7 @@ namespace GSMA.MobileConnect.Test
         {
             var response = await _mobileConnect.AttemptDiscoveryAfterOperatorSelectionAsync(validOperatorSelectionCallback);
 
-            Assert.AreEqual(MobileConnectResponseType.StartDiscovery, response.ResponseType);
+            Assert.AreEqual(MobileConnectResponseType.StartAuthentication, response.ResponseType);
             Assert.IsNotNull(response.DiscoveryResponse);
         }
 
