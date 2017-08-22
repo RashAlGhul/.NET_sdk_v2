@@ -94,7 +94,6 @@
     <Compile Include="Discovery\DiscoveryResponseTests.cs" />
     <Compile Include="Discovery\DiscoveryServiceTests.cs" />
     <Compile Include="Discovery\SupportedVersionsTests.cs" />
-    <Compile Include="EndToEndTests.cs" />
     <Compile Include="ErrorResponseTests.cs" />
     <Compile Include="Identity\IdentityDataTests.cs" />
     <Compile Include="Identity\IdentityServiceTests.cs" />
