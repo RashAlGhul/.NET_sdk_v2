@@ -34,9 +34,16 @@ namespace GSMA.MobileConnect.Test.Authentication
         [SetUp]
         public void Setup()
         {
+            Log.RegisterLogger(new TestLogger(), LogLevel.Info);
             _restClient = new MockRestClient();
             _authentication = new MobileConnect.Authentication.AuthenticationService(this._restClient);
             _config = new MobileConnectConfig() { ClientId = "1234567890", ClientSecret = "1234567890", DiscoveryUrl = "http://localhost:8080/v2/discovery/" };
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Log.RegisterLogger(null);
         }
 
         [Test]

@@ -16,7 +16,7 @@ namespace GSMA.MobileConnect.Test
         [SetUp]
         public void SetUp()
         {
-            Log.RegisterLogger(new TestLogger(), LogLevel.Error);
+            Log.RegisterLogger(new TestLogger(), LogLevel.Info);
         }
 
         [TearDown]

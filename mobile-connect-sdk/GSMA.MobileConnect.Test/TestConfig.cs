@@ -49,20 +49,11 @@ namespace GSMA.MobileConnect.Test
 
         private static TestConfigurationData CreateConfig(string environment)
         {
-            //string clientIdVar = $"GSMADemo{environment}ClientId";
-            //string clientSecretVar = $"GSMADemo{environment}ClientSecret";
-            //string discoveryVar = $"GSMADemo{environment}DiscoveryUrl";
-            //string redirectVar = "GSMADemoRedirectUrl";
 
             string clientId = "ab3870a4-a118-4295-a6e8-1259186818e6";
             string clientSecret = "8e72fc86-dda0-4d0c-abd0-980816da6279";
             string discoveryUrl = "https://discovery.sandbox.mobileconnect.io/v2/discovery";
             string redirectUrl = "http://localhost:8001/mobileconnect.html";
-
-            if (clientId == null || clientSecret == null || discoveryUrl == null || redirectUrl == null)
-            {
-                return null;
-            }
 
             return new TestConfigurationData
             {
